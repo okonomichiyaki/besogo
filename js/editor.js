@@ -457,6 +457,26 @@ besogo.makeEditor = function(sizeX, sizeY) {
         }
     }
 
+    function markGroup(i, j, mark) {
+        var color = current.getStone(i,j);
+        var visited = [i + "," + j];
+        var frontier = [[i + 1,j],[i,j + 1],[i - 1,j],[i,j - 1]];
+        while (frontier.length > 0) {
+            var next = frontier.pop();
+            if (visited.indexOf(next[0] + "," + next[1]) >= 0) {
+                continue;
+            }
+            visited.push(next[0] + "," + next[1]);
+            if (current.getStone(next[0], next[1]) === color) {
+                current.addMarkup(next[0], next[1], mark);
+                frontier.push([next[0] + 1, next[1]]);
+                frontier.push([next[0], next[1] + 1]);
+                frontier.push([next[0] - 1, next[1]]);
+                frontier.push([next[0], next[1] - 1]);    
+            }
+        }  
+    }
+    
     // Sets the markup at the given location and place
     function setMarkup(i, j, mark) {
         var temp; // For label incrementing
@@ -468,6 +488,8 @@ besogo.makeEditor = function(sizeX, sizeY) {
             }
         }
         if (current.addMarkup(i, j, mark)) { // Try to add the markup
+            markGroup(i, j, mark);
+            /*
             if (typeof mark === 'string') { // If markup is a label, increment the label
                 if (/^-?\d+$/.test(mark)) { // Integer number label
                     temp = +mark; // Convert to number
@@ -487,6 +509,7 @@ besogo.makeEditor = function(sizeX, sizeY) {
                     setLabel( mark.slice(0, mark.length - 1) + temp );
                 }
             }
+            */
             notifyListeners({ markupChange: true }); // Notify markup change
         }
     }
